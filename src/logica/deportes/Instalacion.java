@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Instalacion {
+	private String nombre;
     private int capacidad;
     private boolean techada;
     private String tipoCancha;
@@ -15,8 +16,14 @@ public class Instalacion {
         this.tipoCancha = tipoCancha;
         this.reservas = new ArrayList<Reserva>();
     }
+    
 
-    public int getCapacidad() {
+    public String getNombre() {
+		return nombre;
+	}
+
+
+	public int getCapacidad() {
         return this.capacidad;
     }
 
