@@ -13,6 +13,9 @@ public class GestorUsuarios {
         this.usuarios = repositorio.cargarUsuarios();
     }
 //Metodos
+    public Map<String, Usuario> getUsuarios() {
+        return usuarios;
+    }
     public Usuario autenticar (String login, String password) throws Exception {
     	Usuario usuario = usuarios.get(login);
         if (usuario == null) {

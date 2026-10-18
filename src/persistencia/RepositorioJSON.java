@@ -40,6 +40,9 @@ public class RepositorioJSON implements RepositorioDatos {
 	                Socio socio = (Socio) u;
 	                json.put("tipo", "SOCIO");
 	                json.put("edad", socio.getEdad());
+	                if (socio.getFechaFinSuspension() != null) {
+	                    json.put("fechaFinSuspension", socio.getFechaFinSuspension().toString());
+	                }
 	                if (socio.getEmpleadoDescuento() != null) {
 	                    json.put("empleadoDescuento", socio.getEmpleadoDescuento().getLogin());
 	                }
@@ -73,9 +76,14 @@ public class RepositorioJSON implements RepositorioDatos {
 	            String password = json.getString("password");
 	            Usuario usuario;
 	            switch (json.getString("tipo")) {
-	            case "SOCIO":
-	                usuario = new Socio(login, password, json.getInt("edad"));
+	            case "SOCIO": {
+	                Socio nuevo = new Socio(login, password, json.getInt("edad"));
+	                if (json.has("fechaFinSuspension")) {
+	                    nuevo.setFechaFinSuspension(LocalDate.parse(json.getString("fechaFinSuspension")));
+	                }
+	                usuario = nuevo;
 	                break;
+	            }
 	            case "ADMINISTRADOR":
 	                usuario = new Administrador(login, password);
 	                break;
