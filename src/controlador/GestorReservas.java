@@ -1,6 +1,7 @@
 package controlador;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Map;
 import logica.deportes.DisciplinaIndividual;
 import logica.deportes.Instalacion;
 import logica.deportes.Reserva;
+import logica.Texto;
 import logica.usuarios.Socio;
 import logica.usuarios.Usuario;
 import persistencia.RepositorioDatos;
@@ -67,6 +69,38 @@ public class GestorReservas {
         instalacion.agregarReserva(reserva);
         repositorio.guardarDisciplinas(disciplinas);
         return reserva;
+    }
+
+    /**
+     * RF5: devuelve la reserva en padel o tenis de mesa techado que el socio tiene en curso o
+     * que empieza dentro de los proximos 'minutos' minutos; null si no tiene ninguna.
+     */
+    public Reserva reservaRestringidaCercana(Socio socio, LocalDateTime momento, int minutos) {
+        LocalDateTime limite = momento.plusMinutes(minutos);
+        for (DisciplinaIndividual d : disciplinas) {
+            for (Instalacion i : d.getInstalaciones()) {
+                if (!prohibeBebidasCalientes(d, i)) {
+                    continue;
+                }
+                for (Reserva r : i.getReservas()) {
+                    if (!r.getSocio().getLogin().equals(socio.getLogin())) {
+                        continue;
+                    }
+                    LocalDateTime inicio = LocalDateTime.of(r.getFecha(), r.getHoraInicio());
+                    LocalDateTime fin = LocalDateTime.of(r.getFecha(), r.getHoraFin());
+                    if (inicio.isBefore(limite) && fin.isAfter(momento)) {
+                        return r;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean prohibeBebidasCalientes(DisciplinaIndividual disciplina, Instalacion instalacion) {
+        boolean padel = Texto.iguales(disciplina.getNombre(), "Padel");
+        boolean mesaTechada = Texto.iguales(disciplina.getNombre(), "Tenis de mesa") && instalacion.isTechada();
+        return padel || mesaTechada;
     }
 
     // ---------------------------------------------------------------- ayudas

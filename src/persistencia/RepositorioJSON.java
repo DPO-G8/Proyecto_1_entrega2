@@ -2,6 +2,7 @@ package persistencia;
 import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +16,14 @@ import logica.deportes.DisciplinaIndividual;
 import logica.deportes.InscripcionDisciplina;
 import logica.deportes.Instalacion;
 import logica.deportes.Reserva;
+import logica.tienda.Articulo;
+import logica.tienda.Bebida;
+import logica.tienda.LineaVenta;
+import logica.tienda.Producto;
+import logica.tienda.Snack;
+import logica.tienda.Venta;
+import logica.tienda.VentaCafeteria;
+import logica.tienda.VentaTienda;
 import logica.usuarios.Administrador;
 import logica.usuarios.Empleado;
 import logica.usuarios.Entrenador;
@@ -207,6 +216,118 @@ public class RepositorioJSON implements RepositorioDatos {
 	    }
 
 
+
+	    @Override
+	    public void guardarProductos(Collection<Producto> productos) throws Exception {
+	        JSONArray arreglo = new JSONArray();
+	        for (Producto p : productos) {
+	            JSONObject json = new JSONObject();
+	            json.put("id", p.getIdProducto());
+	            json.put("nombre", p.getNombre());
+	            json.put("precio", p.getPrecio());
+	            if (p instanceof Articulo) {
+	                Articulo a = (Articulo) p;
+	                json.put("tipo", "ARTICULO");
+	                json.put("categoria", a.getCategoria());
+	                json.put("cantidadDisponible", a.getCantidadDisponible());
+	                json.put("ubicacion", a.getUbicacion());
+	            } else if (p instanceof Bebida) {
+	                json.put("tipo", "BEBIDA");
+	                json.put("caliente", ((Bebida) p).isCaliente());
+	            } else {
+	                json.put("tipo", "SNACK");
+	                json.put("alergenos", new JSONArray(((Snack) p).getAlergenos()));
+	            }
+	            arreglo.put(json);
+	        }
+	        escribir("productos.json", arreglo);
+	    }
+
+	    @Override
+	    public ArrayList<Producto> cargarProductos() throws Exception {
+	        ArrayList<Producto> productos = new ArrayList<Producto>();
+	        JSONArray arreglo = leer("productos.json");
+	        for (int i = 0; i < arreglo.length(); i++) {
+	            JSONObject json = arreglo.getJSONObject(i);
+	            int id = json.getInt("id");
+	            String nombre = json.getString("nombre");
+	            double precio = json.getDouble("precio");
+	            switch (json.getString("tipo")) {
+	            case "ARTICULO":
+	                productos.add(new Articulo(id, nombre, precio, json.getString("categoria"),
+	                        json.getInt("cantidadDisponible"), json.getString("ubicacion")));
+	                break;
+	            case "BEBIDA":
+	                productos.add(new Bebida(id, nombre, precio, json.getBoolean("caliente")));
+	                break;
+	            default:
+	                ArrayList<String> alergenos = new ArrayList<String>();
+	                JSONArray ja = json.getJSONArray("alergenos");
+	                for (int j = 0; j < ja.length(); j++) {
+	                    alergenos.add(ja.getString(j));
+	                }
+	                productos.add(new Snack(id, nombre, precio, alergenos));
+	            }
+	        }
+	        return productos;
+	    }
+
+	    @Override
+	    public void guardarVentas(Collection<Venta> ventas) throws Exception {
+	        JSONArray arreglo = new JSONArray();
+	        for (Venta v : ventas) {
+	            JSONObject json = new JSONObject();
+	            json.put("fecha", v.getFecha().toString());
+	            json.put("comprador", v.getComprador().getLogin());
+	            json.put("puntosRedimidos", v.getPuntosRedimidos());
+	            if (v instanceof VentaCafeteria) {
+	                json.put("tipo", "CAFETERIA");
+	                json.put("propina", ((VentaCafeteria) v).getPorcentajePropina());
+	            } else {
+	                json.put("tipo", "TIENDA");
+	            }
+	            JSONArray lineas = new JSONArray();
+	            for (LineaVenta l : v.getLineas()) {
+	                JSONObject jl = new JSONObject();
+	                jl.put("producto", l.getProducto().getIdProducto());
+	                jl.put("cantidad", l.getCantidad());
+	                jl.put("precioUnitario", l.getPrecioUnitario());
+	                lineas.put(jl);
+	            }
+	            json.put("lineas", lineas);
+	            arreglo.put(json);
+	        }
+	        escribir("ventas.json", arreglo);
+	    }
+
+	    @Override
+	    public ArrayList<Venta> cargarVentas(Map<String, Usuario> usuarios, Map<Integer, Producto> productos)
+	            throws Exception {
+	        ArrayList<Venta> ventas = new ArrayList<Venta>();
+	        JSONArray arreglo = leer("ventas.json");
+	        for (int i = 0; i < arreglo.length(); i++) {
+	            JSONObject json = arreglo.getJSONObject(i);
+	            Usuario comprador = usuarios.get(json.getString("comprador"));
+	            Venta venta;
+	            if (json.getString("tipo").equals("CAFETERIA")) {
+	                VentaCafeteria vc = new VentaCafeteria(comprador);
+	                vc.setPorcentajePropina(json.getDouble("propina"));
+	                venta = vc;
+	            } else {
+	                venta = new VentaTienda(comprador);
+	            }
+	            venta.setFecha(LocalDateTime.parse(json.getString("fecha")));
+	            venta.setPuntosRedimidos(json.getInt("puntosRedimidos"));
+	            JSONArray lineas = json.getJSONArray("lineas");
+	            for (int j = 0; j < lineas.length(); j++) {
+	                JSONObject jl = lineas.getJSONObject(j);
+	                venta.agregarLinea(productos.get(jl.getInt("producto")), jl.getInt("cantidad"),
+	                        jl.getDouble("precioUnitario"));
+	            }
+	            ventas.add(venta);
+	        }
+	        return ventas;
+	    }
 
 	    private void escribir(String nombreArchivo, JSONArray arreglo) throws Exception {
 	        Files.createDirectories(carpeta.toPath());

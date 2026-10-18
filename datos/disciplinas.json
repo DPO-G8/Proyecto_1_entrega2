@@ -1,0 +1,32 @@
+[{
+  "maxInstalacionesSimultaneas": 2,
+  "inscripciones": [],
+  "instalaciones": [{
+    "reservas": [
+      {
+        "horaFin": "11:00",
+        "fecha": "2026-10-19",
+        "socio": "ana",
+        "modalidad": "Dobles",
+        "cantidadJugadores": 4,
+        "invitados": [],
+        "horaInicio": "10:00"
+      },
+      {
+        "horaFin": "19:00:42.601510700",
+        "fecha": "2026-10-18",
+        "socio": "ana",
+        "modalidad": "Dobles",
+        "cantidadJugadores": 4,
+        "invitados": [],
+        "horaInicio": "18:10:42.601510700"
+      }
+    ],
+    "techada": false,
+    "id": 1,
+    "nombre": "Cancha Padel 1",
+    "capacidad": 4,
+    "tipoCancha": "Padel"
+  }],
+  "nombre": "Padel"
+}]
