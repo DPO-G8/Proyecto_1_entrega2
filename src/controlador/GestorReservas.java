@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import logica.deportes.DisciplinaIndividual;
+import logica.deportes.InscripcionDisciplina;
 import logica.deportes.Instalacion;
 import logica.deportes.Reserva;
 import logica.Texto;
@@ -16,11 +17,15 @@ import persistencia.RepositorioDatos;
 
 public class GestorReservas {
 
+    public static final double PUNTAJE_INICIAL = 1000;
+
     private final RepositorioDatos repositorio;
+    private final Map<String, Usuario> usuarios;
     private final ArrayList<DisciplinaIndividual> disciplinas;
 
     public GestorReservas(RepositorioDatos repositorio, Map<String, Usuario> usuarios) throws Exception {
         this.repositorio = repositorio;
+        this.usuarios = usuarios;
         this.disciplinas = repositorio.cargarDisciplinas(usuarios);
     }
 
@@ -28,7 +33,7 @@ public class GestorReservas {
         return disciplinas;
     }
 
-    /** Crea una reserva o lanza una excepcion con el motivo del rechazo. */
+    // RF4 Socio
     public Reserva reservar(Usuario usuario, int idInstalacion, LocalDate fecha, LocalTime horaInicio,
             LocalTime horaFin, int cantidadJugadores, String modalidad) throws Exception {
 
@@ -71,10 +76,51 @@ public class GestorReservas {
         return reserva;
     }
 
-    /**
-     * RF5: devuelve la reserva en padel o tenis de mesa techado que el socio tiene en curso o
-     * que empieza dentro de los proximos 'minutos' minutos; null si no tiene ninguna.
-     */
+    // RF11 Socio
+    public void inscribirEnDisciplina(Usuario quien, String nombreDisciplina, String nivel) throws Exception {
+        if (!(quien instanceof Socio)) {
+            throw new Exception("Solo un socio puede inscribirse en una academia");
+        }
+        if (!Texto.iguales(nivel, "Principiante") && !Texto.iguales(nivel, "Intermedio")
+                && !Texto.iguales(nivel, "Avanzado")) {
+            throw new Exception("Nivel invalido: " + nivel + " (Principiante, Intermedio o Avanzado)");
+        }
+        DisciplinaIndividual disciplina = null;
+        for (DisciplinaIndividual d : disciplinas) {
+            if (Texto.iguales(d.getNombre(), nombreDisciplina)) {
+                disciplina = d;
+            }
+        }
+        if (disciplina == null) {
+            throw new Exception("No existe la disciplina '" + nombreDisciplina + "'");
+        }
+        for (InscripcionDisciplina i : disciplina.getInscripciones()) {
+            if (i.getSocio() == quien) {
+                throw new Exception("Ya esta inscrito en " + disciplina.getNombre());
+            }
+        }
+        disciplina.agregarInscripcion(new InscripcionDisciplina((Socio) quien, nivel, PUNTAJE_INICIAL));
+        repositorio.guardarDisciplinas(disciplinas);
+    }
+
+    // Dato inicial
+    public void agregarDisciplina(DisciplinaIndividual disciplina) throws Exception {
+        disciplinas.add(disciplina);
+        repositorio.guardarDisciplinas(disciplinas);
+    }
+
+    // Busca una instalacion por id
+    public Instalacion getInstalacion(int idInstalacion) throws Exception {
+        return buscarInstalacion(buscarDisciplinaDe(idInstalacion), idInstalacion);
+    }
+
+    // RF5
+    public boolean instalacionRestringida(int idInstalacion) throws Exception {
+        DisciplinaIndividual disciplina = buscarDisciplinaDe(idInstalacion);
+        return prohibeBebidasCalientes(disciplina, buscarInstalacion(disciplina, idInstalacion));
+    }
+
+    // RF5
     public Reserva reservaRestringidaCercana(Socio socio, LocalDateTime momento, int minutos) {
         LocalDateTime limite = momento.plusMinutes(minutos);
         for (DisciplinaIndividual d : disciplinas) {
@@ -125,7 +171,7 @@ public class GestorReservas {
         throw new Exception("No existe una instalacion con id " + idInstalacion);
     }
 
-    /** Hay solapamiento si una reserva empieza antes de que termine la nueva y termina despues de que empiece. */
+    // Se cruzan si una empieza antes de que termine la otra
     private boolean estaOcupada(Instalacion instalacion, LocalDate fecha, LocalTime inicio, LocalTime fin) {
         for (Reserva r : instalacion.getReservas()) {
             if (r.getFecha().equals(fecha) && inicio.isBefore(r.getHoraFin()) && fin.isAfter(r.getHoraInicio())) {

@@ -2,6 +2,7 @@ package controlador;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import logica.tienda.LineaVenta;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,9 +20,9 @@ import persistencia.RepositorioDatos;
 
 public class GestorVentas {
 
-    /** Porcentaje de la compra que se acredita en puntos de fidelidad (R: 2%). */
+    // Puntos de fidelidad: 2%
     public static final double PORCENTAJE_PUNTOS = 0.02;
-    /** Minutos antes de una reserva en los que ya no se vende bebida caliente. */
+    // Minutos de restriccion de bebida caliente
     public static final int MINUTOS_RESTRICCION = 30;
 
     private final RepositorioDatos repositorio;
@@ -50,6 +51,32 @@ public class GestorVentas {
         return ventas;
     }
 
+    // RF3 Administrador
+    public ArrayList<Venta> consultarVentas(Usuario quien) throws Exception {
+        if (!(quien instanceof Administrador)) {
+            throw new Exception("Solo un administrador puede consultar el historial de ventas");
+        }
+        return ventas;
+    }
+
+    // RF5
+    public void verificarAcceso(Socio socio, int idInstalacion) throws Exception {
+        if (!gestorReservas.instalacionRestringida(idInstalacion)) {
+            return;
+        }
+        LocalDateTime limite = LocalDateTime.now().minusMinutes(MINUTOS_RESTRICCION);
+        for (Venta v : ventas) {
+            if (v.getComprador() != socio || v.getFecha().isBefore(limite)) {
+                continue;
+            }
+            for (LineaVenta l : v.getLineas()) {
+                if (l.getProducto() instanceof Bebida && ((Bebida) l.getProducto()).isCaliente()) {
+                    throw new Exception("Acceso rechazado: el socio tiene una bebida caliente reciente");
+                }
+            }
+        }
+    }
+
     public Producto buscarProducto(int idProducto) throws Exception {
         Producto p = productos.get(idProducto);
         if (p == null) {
@@ -66,7 +93,7 @@ public class GestorVentas {
         repositorio.guardarProductos(productos.values());
     }
 
-    /** Alergenos de un snack, para informarlos al socio antes de la compra. */
+    // RF7
     public java.util.List<String> alergenosDe(int idProducto) throws Exception {
         Producto p = buscarProducto(idProducto);
         if (!(p instanceof Snack)) {
@@ -75,27 +102,18 @@ public class GestorVentas {
         return ((Snack) p).getAlergenos();
     }
 
-    /**
-     * Compra con la propina sugerida y sin redimir puntos.
-     */
+    // Propina sugerida, sin puntos
     public Venta comprar(Usuario comprador, Map<Integer, Integer> pedido) throws Exception {
         return comprar(comprador, pedido, VentaCafeteria.PROPINA_SUGERIDA, 0);
     }
 
-    /**
-     * Registra una venta o lanza una excepcion con el motivo del rechazo.
-     *
-     * @param pedido id de producto -> cantidad. Todos deben ser articulos (venta de tienda, IVA) o
-     *               todos bebidas/snacks (venta de cafeteria, impuesto al consumo y propina).
-     * @param propina porcentaje de propina (0 a 1); solo aplica a cafeteria.
-     * @param puntosARedimir puntos de fidelidad usados como descuento (1 punto = 1 peso).
-     */
+    // RF6, RF8, RF9
     public Venta comprar(Usuario comprador, Map<Integer, Integer> pedido, double propina, int puntosARedimir)
             throws Exception {
 
         // ---- 1. validaciones: nada se modifica hasta que todas pasen
-        if (comprador == null || comprador instanceof Administrador) {
-            throw new Exception("Este usuario no puede realizar compras");
+        if (comprador == null) {
+            throw new Exception("Debe indicar quien compra");
         }
         if (pedido == null || pedido.isEmpty()) {
             throw new Exception("El pedido no tiene productos");
