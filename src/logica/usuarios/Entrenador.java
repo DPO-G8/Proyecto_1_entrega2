@@ -20,4 +20,8 @@ public class Entrenador extends Empleado {
     public void agregarEquipo(Equipo equipo) {
         this.equipos.add(equipo);
     }
+
+    public boolean dirige(Equipo equipo) {
+        return this.equipos.contains(equipo);
+    }
 }

@@ -38,4 +38,19 @@ public abstract class Usuario {
     public void acreditaPuntos(int puntos) {
         this.puntosFidelidad += puntos;
     }
+
+    public void redimirPuntos(int puntos) throws Exception {
+        if (puntos <= 0) {
+            throw new Exception("La cantidad de puntos a redimir debe ser positiva, se recibio " + puntos);
+        }
+        if (puntos > this.puntosFidelidad) {
+            throw new Exception("Puntos insuficientes: " + this.login + " tiene " + this.puntosFidelidad
+                    + " y quiere redimir " + puntos);
+        }
+        this.puntosFidelidad -= puntos;
+    }
+
+    public double getPorcentajeDescuento() {
+        return 0;
+    }
 }

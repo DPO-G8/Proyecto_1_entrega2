@@ -3,6 +3,8 @@ package logica.deportes;
 import java.util.ArrayList;
 import java.util.List;
 
+import logica.Texto;
+
 public class Competencia {
     private String nombre;
     private String entidadOrganizadora;
@@ -23,7 +25,6 @@ public class Competencia {
         this.nominaMinima = nominaMinima;
         this.deporte = deporte;
         this.inscripciones = new ArrayList<InscripcionCompetencia>();
-        deporte.agregarCompetencia(this);
     }
 
     public String getNombre() {
@@ -63,6 +64,19 @@ public class Competencia {
     }
 
     public boolean categoriaValida(String categoria) {
-        return this.categoriaHabilitada.equals(categoria);
+        return Texto.iguales(this.categoriaHabilitada, categoria);
+    }
+
+    public int calcularPuntos(int golesFavor, int golesContra) throws Exception {
+        if (golesFavor > golesContra) {
+            return 3;
+        }
+        if (golesFavor < golesContra) {
+            return 0;
+        }
+        if (Texto.iguales(this.deporte.getNombre(), "Futbol")) {
+            return 1;
+        }
+        throw new Exception("En " + this.deporte.getNombre() + " no hay empates: " + golesFavor + "-" + golesContra);
     }
 }

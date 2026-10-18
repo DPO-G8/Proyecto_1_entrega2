@@ -5,7 +5,9 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import logica.Texto;
 import logica.usuarios.Entrenador;
+import logica.usuarios.Socio;
 
 public class SesionEntrenamiento {
     private LocalDate fecha;
@@ -65,7 +67,22 @@ public class SesionEntrenamiento {
         return this.asistencias;
     }
 
-    public void agregarAsistencia(Asistencia asistencia) {
+    public void registrarAsistencia(Socio socio, String estado, int nota, String comentario) throws Exception {
+        String estadoValido;
+        if (Texto.iguales(estado, Asistencia.ASISTIO)) {
+            estadoValido = Asistencia.ASISTIO;
+        } else if (Texto.iguales(estado, Asistencia.FALTO)) {
+            estadoValido = Asistencia.FALTO;
+        } else if (Texto.iguales(estado, Asistencia.LLEGO_TARDE)) {
+            estadoValido = Asistencia.LLEGO_TARDE;
+        } else {
+            throw new Exception("Estado de asistencia invalido: " + estado + " (ASISTIO, FALTO o LLEGO_TARDE)");
+        }
+        Asistencia asistencia = new Asistencia(socio, estadoValido);
+        if (nota != 0) {
+            asistencia.setNotaDesempeno(nota);
+        }
+        asistencia.setComentario(comentario);
         this.asistencias.add(asistencia);
     }
 }

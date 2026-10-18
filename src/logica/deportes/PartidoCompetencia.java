@@ -2,6 +2,8 @@ package logica.deportes;
 
 import java.time.LocalDate;
 
+import logica.usuarios.Socio;
+
 public class PartidoCompetencia extends Partido {
     private String institucionRival;
     private String escenario;
@@ -37,5 +39,15 @@ public class PartidoCompetencia extends Partido {
 
     public Equipo getEquipo() {
         return this.equipo;
+    }
+
+    @Override
+    public boolean puedeAlinear(Socio socio) {
+        for (InscripcionCompetencia inscripcion : this.competencia.getInscripciones()) {
+            if (inscripcion.getEquipo() == this.equipo && inscripcion.getNomina().contains(socio)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
