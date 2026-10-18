@@ -36,8 +36,13 @@ public class Instalacion {
     public boolean isTechada() {
         return this.techada;
     }
+    
 
-    public String getTipoCancha() {
+    public int getId() {
+		return id;
+	}
+
+	public String getTipoCancha() {
         return this.tipoCancha;
     }
 

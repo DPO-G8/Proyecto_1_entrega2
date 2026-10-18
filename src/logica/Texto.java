@@ -1,5 +1,4 @@
 package logica;
-
 import java.text.Normalizer;
 
 public class Texto {

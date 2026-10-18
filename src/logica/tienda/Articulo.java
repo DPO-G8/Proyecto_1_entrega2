@@ -32,4 +32,11 @@ public class Articulo extends Producto {
         }
         this.cantidadDisponible -= cantidad;
     }
+
+    public void reponer(int cantidad) throws Exception {
+        if (cantidad <= 0) {
+            throw new Exception("La cantidad a reponer debe ser positiva, se recibio " + cantidad);
+        }
+        this.cantidadDisponible += cantidad;
+    }
 }

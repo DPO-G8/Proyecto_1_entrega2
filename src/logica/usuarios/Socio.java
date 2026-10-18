@@ -34,6 +34,10 @@ public class Socio extends Usuario {
         return this.fechaFinSuspension;
     }
 
+    public void setFechaFinSuspension(LocalDate fechaFinSuspension) {
+        this.fechaFinSuspension = fechaFinSuspension;
+    }
+
     public Empleado getEmpleadoDescuento() {
         return this.empleadoDescuento;
     }
