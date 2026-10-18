@@ -29,7 +29,7 @@ public class GestorEquipos {
         return deportes;
     }
 
- 
+    // Dato inicial
     public void agregarDeporte(DeporteConjunto deporte) throws Exception {
         for (DeporteConjunto d : deportes) {
             if (Texto.iguales(d.getNombre(), deporte.getNombre())) {
@@ -60,9 +60,9 @@ public class GestorEquipos {
         throw new Exception("No existe el deporte '" + nombre + "'");
     }
 
-    // Administrador RF6: 
-    public Equipo crearEquipo(Usuario quien, String nombreDeporte, String nombre, String categoria, int cupoMaximo)
-            throws Exception {
+    // RF6 Administrador
+    public Equipo crearEquipo(Usuario quien, String nombreDeporte, String nombre, String categoria, int cupoMaximo,
+            String loginEntrenador) throws Exception {
         exigirAdministrador(quien);
         if (nombre == null || nombre.trim().isEmpty() || categoria == null || categoria.trim().isEmpty()) {
             throw new Exception("El equipo necesita nombre y categoria");
@@ -80,13 +80,18 @@ public class GestorEquipos {
         if (existe) {
             throw new Exception("Ya existe un equipo llamado '" + nombre + "'");
         }
+        Usuario entrenador = usuarios.get(loginEntrenador);
+        if (!(entrenador instanceof Entrenador)) {
+            throw new Exception("No existe un entrenador con login '" + loginEntrenador + "'");
+        }
         Equipo equipo = new Equipo(nombre, categoria, cupoMaximo, deporte);
         deporte.agregarEquipo(equipo);
+        ((Entrenador) entrenador).agregarEquipo(equipo);
         guardar();
         return equipo;
     }
 
-    // Administrador RF6
+    // RF6 Administrador
     public void eliminarEquipo(Usuario quien, String nombre) throws Exception {
         exigirAdministrador(quien);
         Equipo equipo = buscarEquipo(nombre);
@@ -102,25 +107,7 @@ public class GestorEquipos {
         guardar();
     }
 
-    // Administrador: 
-    public void asignarEntrenador(Usuario quien, String nombreEquipo, String loginEntrenador) throws Exception {
-        exigirAdministrador(quien);
-        Equipo equipo = buscarEquipo(nombreEquipo);
-        Usuario entrenador = usuarios.get(loginEntrenador);
-        if (!(entrenador instanceof Entrenador)) {
-            throw new Exception("No existe un entrenador con login '" + loginEntrenador + "'");
-        }
-        if (((Entrenador) entrenador).dirige(equipo)) {
-            throw new Exception(loginEntrenador + " ya dirige el equipo " + nombreEquipo);
-        }
-        ((Entrenador) entrenador).agregarEquipo(equipo);
-        guardar();
-    }
-
-    /**
-     * Administrador RF7 / Socio RF11: agrega un jugador a un equipo. Un socio solo puede
-     * inscribirse a si mismo. Equipo valida cupo, camiseta repetida, jugador repetido y categoria.
-     */
+    // RF7 Administrador / RF11 Socio
     public void agregarJugador(Usuario quien, String nombreEquipo, String loginSocio, String posicion,
             int numeroCamiseta) throws Exception {
         Usuario destino = usuarios.get(loginSocio);
@@ -135,7 +122,7 @@ public class GestorEquipos {
         guardar();
     }
 
-    /** Administrador RF7: quita un jugador; rechaza si no esta en el equipo o esta en una nomina inscrita. */
+    // RF7 Administrador
     public void quitarJugador(Usuario quien, String nombreEquipo, String loginSocio) throws Exception {
         exigirAdministrador(quien);
         Equipo equipo = buscarEquipo(nombreEquipo);
@@ -147,11 +134,6 @@ public class GestorEquipos {
         }
         if (encontrada == null) {
             throw new Exception(loginSocio + " no pertenece al equipo " + nombreEquipo);
-        }
-        for (InscripcionCompetencia ic : equipo.getInscripcionesCompetencia()) {
-            if (ic.getNomina().contains(encontrada.getSocio())) {
-                throw new Exception(loginSocio + " esta en la nomina de " + ic.getCompetencia().getNombre());
-            }
         }
         equipo.getPlantilla().remove(encontrada);
         guardar();

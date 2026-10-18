@@ -29,7 +29,7 @@ import persistencia.RepositorioDatos;
 
 public class GestorCompetencias {
 
-    // Dias de suspension tras acumular dos amarillas o recibir una roja. 
+    // Dias de suspension (tarjetas)
     public static final int DIAS_SUSPENSION = 7;
 
     private final RepositorioDatos repositorio;
@@ -58,7 +58,7 @@ public class GestorCompetencias {
         return partidos;
     }
 
-    /** Datos iniciales: ningun actor crea competencias, vienen cargadas con el club. */
+    // Dato inicial
     public void agregarCompetencia(Competencia competencia) throws Exception {
         for (Competencia c : competencias) {
             if (Texto.iguales(c.getNombre(), competencia.getNombre())) {
@@ -78,7 +78,7 @@ public class GestorCompetencias {
         throw new Exception("No existe la competencia '" + nombre + "'");
     }
 
-    // Entrenador RF4: inscribe un equipo que dirige en una competencia con una nomina. 
+    // RF4 Entrenador
     public void inscribirEquipo(Usuario quien, String nombreEquipo, String nombreCompetencia,
             List<String> loginsNomina) throws Exception {
         Equipo equipo = gestorEquipos.buscarEquipo(nombreEquipo);
@@ -101,7 +101,7 @@ public class GestorCompetencias {
         repositorio.guardarCompetencias(competencias);
     }
 
-    // Entrenador: programa un partido oficial de su equipo en una competencia donde esta inscrito. 
+    // Programa un partido oficial
     public PartidoCompetencia programarPartido(Usuario quien, String nombreEquipo, String nombreCompetencia,
             LocalDate fecha, String institucionRival, String escenario, String fase) throws Exception {
         Equipo equipo = gestorEquipos.buscarEquipo(nombreEquipo);
@@ -117,7 +117,7 @@ public class GestorCompetencias {
         return partido;
     }
 
-    // Entrenador RF3: convoca jugadores (minimo del deporte, sin suspendidos, solo nomina inscrita). 
+    // RF3 Entrenador
     public void convocar(Usuario quien, PartidoCompetencia partido, List<String> logins) throws Exception {
         exigirEntrenadorDe(quien, partido.getEquipo());
         ArrayList<Socio> jugadores = new ArrayList<Socio>();
@@ -128,7 +128,7 @@ public class GestorCompetencias {
         repositorio.guardarPartidos(partidos);
     }
 
-    // Entrenador: registra el marcador de un partido oficial (golesFavor-golesContra). 
+    // Registra el marcador
     public void registrarResultado(Usuario quien, PartidoCompetencia partido, int golesFavor, int golesContra)
             throws Exception {
         exigirEntrenadorDe(quien, partido.getEquipo());
@@ -138,8 +138,7 @@ public class GestorCompetencias {
         repositorio.guardarPartidos(partidos);
     }
 
-    //Entrenador: registra la estadistica de un jugador en un partido. En futbol actualiza lavsuspension del jugador (dos amarillas acumuladas en la competencia o una roja).
-     
+    // Registra estadistica; en futbol actualiza la suspension
     public void registrarEstadistica(Usuario quien, Partido partido, Estadistica estadistica) throws Exception {
         if (partido instanceof PartidoCompetencia) {
             exigirEntrenadorDe(quien, ((PartidoCompetencia) partido).getEquipo());
@@ -165,7 +164,7 @@ public class GestorCompetencias {
         repositorio.guardarPartidos(partidos);
     }
 
-    // Tabla de posiciones de una competencia de liga: equipo -> puntos, de mayor a menor. 
+    // Tabla de posiciones
     public Map<Equipo, Integer> tablaPosiciones(String nombreCompetencia) throws Exception {
         Competencia competencia = buscarCompetencia(nombreCompetencia);
         final Map<Equipo, Integer> puntos = new LinkedHashMap<Equipo, Integer>();
@@ -194,7 +193,7 @@ public class GestorCompetencias {
         return tabla;
     }
 
-    // Entrenador RF5: estadisticas de todos los miembros de un equipo que dirige.
+    // RF5 Entrenador
     public ArrayList<Estadistica> estadisticasDeEquipo(Usuario quien, String nombreEquipo) throws Exception {
         Equipo equipo = gestorEquipos.buscarEquipo(nombreEquipo);
         exigirEntrenadorDe(quien, equipo);
@@ -205,7 +204,7 @@ public class GestorCompetencias {
         return resultado;
     }
 
-    // Socio RF1
+    // RF1 Socio
     public String proximaPosicion(Socio socio) throws Exception {
         PartidoCompetencia proximo = null;
         for (Partido p : partidos) {
@@ -226,7 +225,7 @@ public class GestorCompetencias {
         throw new Exception(socio.getLogin() + " ya no pertenece al equipo del partido");
     }
 
-    //Socio RF3
+    // RF3 Socio
     public PartidoPractica crearPartidoPractica(Usuario quien, String nombreDisciplina, String modalidad,
             LocalDate fecha, List<String> otros) throws Exception {
         if (!(quien instanceof Socio)) {
@@ -292,7 +291,7 @@ public class GestorCompetencias {
         return partido;
     }
 
-    // ayudas
+    // ---------------------------------------------------------------- ayudas
 
     private void exigirEntrenadorDe(Usuario quien, Equipo equipo) throws Exception {
         if (!(quien instanceof Entrenador) || !((Entrenador) quien).dirige(equipo)) {

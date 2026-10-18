@@ -38,7 +38,7 @@ public class GestorEntrenamientos {
         return sesiones;
     }
 
- //Entrenador RF1: 
+    // RF1 Entrenador
     public SesionEntrenamiento crearSesion(Usuario quien, LocalDate fecha, LocalTime hora, int duracionMinutos,
             String tipo, int idInstalacion, String nombreEquipo) throws Exception {
         if (!(quien instanceof Entrenador)) {
@@ -79,7 +79,7 @@ public class GestorEntrenamientos {
         return sesion;
     }
 
-    // Entrenador RF2.
+    // RF2 Entrenador
     public void registrarAsistencia(Usuario quien, SesionEntrenamiento sesion, String loginSocio, String estado,
             int nota, String comentario) throws Exception {
         if (sesion.getEntrenador() != quien) {
@@ -98,16 +98,11 @@ public class GestorEntrenamientos {
         if (!pertenece) {
             throw new Exception(loginSocio + " no pertenece al equipo " + sesion.getEquipo().getNombre());
         }
-        for (Asistencia a : sesion.getAsistencias()) {
-            if (a.getSocio() == u) {
-                throw new Exception("Ya se registro la asistencia de " + loginSocio + " en esta sesion");
-            }
-        }
         sesion.registrarAsistencia((Socio) u, estado, nota, comentario);
         repositorio.guardarSesiones(sesiones);
     }
 
-    // Socio RF12
+    // RF12 Socio
     public ArrayList<Asistencia> asistenciasDe(Socio socio) {
         ArrayList<Asistencia> resultado = new ArrayList<Asistencia>();
         for (SesionEntrenamiento s : sesiones) {
