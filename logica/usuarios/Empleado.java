@@ -6,6 +6,8 @@ import java.util.List;
 import logica.tienda.Sugerencia;
 
 public class Empleado extends Usuario {
+    public static final double DESCUENTO_EMPLEADO = 0.15;
+
     private String codigoDescuento;
     private List<Turno> turnos;
     private List<SolicitudCambioTurno> solicitudes;
@@ -45,5 +47,10 @@ public class Empleado extends Usuario {
 
     public void agregarSugerencia(Sugerencia sugerencia) {
         this.sugerencias.add(sugerencia);
+    }
+
+    @Override
+    public double getPorcentajeDescuento() {
+        return DESCUENTO_EMPLEADO;
     }
 }

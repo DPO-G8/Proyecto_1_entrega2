@@ -1,7 +1,5 @@
 package logica.tienda;
 
-import java.util.Map;
-
 import logica.usuarios.Usuario;
 
 public class VentaTienda extends Venta {
@@ -12,7 +10,7 @@ public class VentaTienda extends Venta {
     }
 
     @Override
-    public double calcularTotal(Map<Articulo, Integer> articulosYCantidades, boolean tieneDescuentoCompartido) {
-        return super.calcularTotal(articulosYCantidades, tieneDescuentoCompartido) * (1 + IVA);
+    public double calcularTotal() {
+        return super.calcularTotal() * (1 + IVA);
     }
 }

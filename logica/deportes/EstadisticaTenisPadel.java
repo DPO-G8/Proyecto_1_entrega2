@@ -8,8 +8,8 @@ public class EstadisticaTenisPadel extends Estadistica {
     private int aces;
     private int erroresNoForzados;
 
-    public EstadisticaTenisPadel(Socio socio, int setsGanados, int gamesGanados, int aces, int erroresNoForzados) {
-        super(socio);
+    public EstadisticaTenisPadel(Socio socio, Partido partido, int setsGanados, int gamesGanados, int aces, int erroresNoForzados) {
+        super(socio, partido);
         this.setsGanados = setsGanados;
         this.gamesGanados = gamesGanados;
         this.aces = aces;

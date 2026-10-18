@@ -6,8 +6,8 @@ public class EstadisticaBaloncesto extends Estadistica {
     private int puntos;
     private int rebotes;
 
-    public EstadisticaBaloncesto(Socio socio, int puntos, int rebotes) {
-        super(socio);
+    public EstadisticaBaloncesto(Socio socio, Partido partido, int puntos, int rebotes) {
+        super(socio, partido);
         this.puntos = puntos;
         this.rebotes = rebotes;
     }

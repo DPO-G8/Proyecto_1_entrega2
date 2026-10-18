@@ -6,8 +6,8 @@ public class EstadisticaVoleibol extends Estadistica {
     private int aces;
     private int bloqueos;
 
-    public EstadisticaVoleibol(Socio socio, int aces, int bloqueos) {
-        super(socio);
+    public EstadisticaVoleibol(Socio socio, Partido partido, int aces, int bloqueos) {
+        super(socio, partido);
         this.aces = aces;
         this.bloqueos = bloqueos;
     }

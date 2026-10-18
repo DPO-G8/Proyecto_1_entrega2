@@ -8,8 +8,8 @@ public class EstadisticaFutbol extends Estadistica {
     private int tarjetasAmarillas;
     private int tarjetasRojas;
 
-    public EstadisticaFutbol(Socio socio, int goles, int asistencias, int tarjetasAmarillas, int tarjetasRojas) {
-        super(socio);
+    public EstadisticaFutbol(Socio socio, Partido partido, int goles, int asistencias, int tarjetasAmarillas, int tarjetasRojas) {
+        super(socio, partido);
         this.goles = goles;
         this.asistencias = asistencias;
         this.tarjetasAmarillas = tarjetasAmarillas;

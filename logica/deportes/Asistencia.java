@@ -3,6 +3,10 @@ package logica.deportes;
 import logica.usuarios.Socio;
 
 public class Asistencia {
+    public static final String ASISTIO = "ASISTIO";
+    public static final String FALTO = "FALTO";
+    public static final String LLEGO_TARDE = "LLEGO_TARDE";
+
     private String estado;
     private int notaDesempeno;
     private String comentario;

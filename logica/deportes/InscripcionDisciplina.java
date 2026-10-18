@@ -1,5 +1,6 @@
 package logica.deportes;
 
+import logica.Texto;
 import logica.usuarios.Socio;
 
 public class InscripcionDisciplina {
@@ -23,5 +24,20 @@ public class InscripcionDisciplina {
 
     public Socio getSocio() {
         return this.socio;
+    }
+
+    public boolean nivelCompatible(InscripcionDisciplina otra) {
+        int diferencia = valorNivel(this.nivel) - valorNivel(otra.getNivel());
+        return diferencia >= -1 && diferencia <= 1;
+    }
+
+    private int valorNivel(String nivel) {
+        if (Texto.iguales(nivel, "Principiante")) {
+            return 0;
+        }
+        if (Texto.iguales(nivel, "Intermedio")) {
+            return 1;
+        }
+        return 2;
     }
 }

@@ -43,11 +43,14 @@ public abstract class Partido {
         this.estadisticas.add(estadistica);
     }
 
-    public boolean registroAlineacion(List<Socio> jugadores) {
+    public void registroAlineacion(List<Socio> jugadores) throws Exception {
         if (jugadores.isEmpty()) {
-            return false;
+            throw new Exception("No se puede registrar una alineacion sin jugadores");
         }
         this.alineados = new ArrayList<Socio>(jugadores);
+    }
+
+    public boolean puedeAlinear(Socio socio) {
         return true;
     }
 }

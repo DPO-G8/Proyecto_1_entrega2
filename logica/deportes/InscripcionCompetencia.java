@@ -10,7 +10,7 @@ public class InscripcionCompetencia {
     private Competencia competencia;
     private List<Socio> nomina;
 
-    public InscripcionCompetencia(Equipo equipo, Competencia competencia, List<Socio> nomina) {
+    private InscripcionCompetencia(Equipo equipo, Competencia competencia, List<Socio> nomina) {
         this.equipo = equipo;
         this.competencia = competencia;
         this.nomina = new ArrayList<Socio>(nomina);
