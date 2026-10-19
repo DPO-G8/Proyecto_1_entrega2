@@ -25,6 +25,10 @@ public class Articulo extends Producto {
         return this.ubicacion;
     }
 
+    public void setUbicacion(String ubicacion) {
+        this.ubicacion = ubicacion;
+    }
+
     public void descontarInventario(int cantidad) throws Exception {
         if (cantidad > this.cantidadDisponible) {
             throw new Exception("No hay suficientes unidades de " + getNombre() + ": se piden " + cantidad

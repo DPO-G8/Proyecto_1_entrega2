@@ -48,6 +48,20 @@ public class GestorInventario {
         repositorio.guardarProductos(gestorVentas.getProductos().values());
     }
 
+    // RF5 Administrador: mover un articulo a otra ubicacion del inventario
+    public void moverArticulo(Usuario quien, int idProducto, String ubicacion) throws Exception {
+        exigirAdministrador(quien);
+        Producto p = gestorVentas.buscarProducto(idProducto);
+        if (!(p instanceof Articulo)) {
+            throw new Exception("'" + p.getNombre() + "' no es un articulo con ubicacion en inventario");
+        }
+        if (ubicacion == null || ubicacion.trim().isEmpty()) {
+            throw new Exception("La nueva ubicacion no puede estar vacia");
+        }
+        ((Articulo) p).setUbicacion(ubicacion.trim());
+        repositorio.guardarProductos(gestorVentas.getProductos().values());
+    }
+
     // Siguiente id libre
     public int siguienteIdProducto() {
         int max = 0;

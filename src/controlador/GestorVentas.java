@@ -1,7 +1,9 @@
 package controlador;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import logica.Texto;
 import logica.tienda.LineaVenta;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -57,6 +59,33 @@ public class GestorVentas {
             throw new Exception("Solo un administrador puede consultar el historial de ventas");
         }
         return ventas;
+    }
+
+    // RF3 Administrador: ventas de un rubro (TIENDA o CAFETERIA) entre dos fechas, inclusive
+    public ArrayList<Venta> ventasPorRubro(Usuario quien, String rubro, LocalDate desde, LocalDate hasta)
+            throws Exception {
+        if (!(quien instanceof Administrador)) {
+            throw new Exception("Solo un administrador puede consultar el historial de ventas");
+        }
+        boolean tienda = Texto.iguales(rubro, "TIENDA");
+        if (!tienda && !Texto.iguales(rubro, "CAFETERIA")) {
+            throw new Exception("Rubro desconocido: " + rubro + " (TIENDA o CAFETERIA)");
+        }
+        if (desde.isAfter(hasta)) {
+            throw new Exception("El periodo es invalido: " + desde + " es despues de " + hasta);
+        }
+        ArrayList<Venta> resultado = new ArrayList<Venta>();
+        for (Venta v : ventas) {
+            LocalDate fecha = v.getFecha().toLocalDate();
+            boolean delRubro = v instanceof VentaCafeteria;
+            if (tienda) {
+                delRubro = v instanceof VentaTienda;
+            }
+            if (delRubro && !fecha.isBefore(desde) && !fecha.isAfter(hasta)) {
+                resultado.add(v);
+            }
+        }
+        return resultado;
     }
 
     // RF5
